@@ -1,124 +1,154 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const Navbar = ({ user, onLogout }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Navbar = () => {
+  const { user, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location]);
-
-  const toggleMenu = () => setIsOpen(!isOpen);
-
-  // Close menu on click outside
-  const handleOutsideClick = (e) => {
-    if (
-      isOpen &&
-      !e.target.closest(".navbar-menu") &&
-      !e.target.closest(".hamburger")
-    ) {
-      setIsOpen(false);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
-  useEffect(() => {
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
-  }, [isOpen]);
-
   return (
-    <nav className="bg-white z-[50000] p-4 shadow-lg sticky top-0">
-      <div className="container mx-auto z-[50000] flex justify-between items-center">
-        <Link
-          to="/"
-          className="text-gold-200 text-lg sm:text-xl lg:text-2xl font-bold hover:text-gold-100 transition-all duration-200 flex items-center gap-2"
-          aria-label="Voting App Home"
-        >
-          <svg
-            className="w-6 h-6 sm:w-8 sm:h-8"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-          Voting App
-        </Link>
-        <button
-          onClick={toggleMenu}
-          className="sm:hidden text-black focus:outline-none hamburger"
-          aria-label={isOpen ? "Close menu" : "Open menu"}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-            />
-          </svg>
-        </button>
-        <div
-          className={`navbar-menu absolute sm:static top-16 left-0 w-full sm:w-auto bg-white sm:bg-white transition-all duration-300 ease-in-out ${
-            isOpen
-              ? "max-h-96 opacity-100"
-              : "max-h-0 opacity-0 sm:max-h-none sm:opacity-100"
-          } sm:flex sm:items-center overflow-hidden sm:overflow-visible`}
-        >
-          <div className="flex flex-col sm:flex-row sm:space-x-6 p-4 sm:p-0">
+    <nav className="bg-white shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link
+              to={user ? (user.is_admin ? "/admin" : "/dashboard") : "/login"}
+              className="flex-shrink-0 flex items-center"
+            >
+              <span className="text-xl font-bold text-blue-600">BSC</span>
+              <span className="ml-2 text-gray-800 font-medium">
+                Election Portal
+              </span>
+            </Link>
+          </div>
+
+          <div className="hidden md:flex md:items-center md:space-x-4">
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  className={`text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 ${
-                    location.pathname === "/dashboard"
-                      ? "border-b-2 border-gold-400"
-                      : ""
-                  }`}
-                >
-                  Dashboard
-                </Link>
+                {user.is_admin && (
+                  <>
+                    <Link
+                      to="/admin"
+                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/admin/candidates"
+                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                    >
+                      Candidates
+                    </Link>
+                    <Link
+                      to="/admin/positions"
+                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                    >
+                      Positions
+                    </Link>
+                  </>
+                )}
                 <Link
                   to="/results"
-                  className={`text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 ${
-                    location.pathname === "/results"
-                      ? "border-b-2 border-gold-400"
-                      : ""
-                  }`}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                 >
                   Results
                 </Link>
+                <div className="relative ml-3">
+                  <div className="flex items-center">
+                    <button
+                      onClick={handleLogout}
+                      className="ml-4 px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                >
+                  Login
+                </Link>
+                {/* <Link
+                  to="/register"
+                  className="ml-4 px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  Register
+                </Link> */}
+              </>
+            )}
+          </div>
+
+          <div className="flex md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMenuOpen ? (
+                <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {user ? (
+              <>
                 {user.is_admin && (
-                  <Link
-                    to="/admin"
-                    className={`text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 ${
-                      location.pathname === "/admin"
-                        ? "border-b-2 border-gold-400"
-                        : ""
-                    }`}
-                  >
-                    Admin Panel
-                  </Link>
+                  <>
+                    <Link
+                      to="/admin"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/admin/candidates"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Candidates
+                    </Link>
+                    <Link
+                      to="/admin/positions"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Positions
+                    </Link>
+                  </>
                 )}
+                <Link
+                  to="/results"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Results
+                </Link>
                 <button
                   onClick={() => {
-                    onLogout();
-                    navigate("/login");
+                    handleLogout();
+                    setIsMenuOpen(false);
                   }}
-                  className="text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 text-left bg-teal-600 sm:bg-teal-600 sm:px-4 sm:rounded-md sm:hover:bg-teal-500 sm:transition-colors"
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
                 >
                   Logout
                 </button>
@@ -127,29 +157,23 @@ const Navbar = ({ user, onLogout }) => {
               <>
                 <Link
                   to="/login"
-                  className={`text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 ${
-                    location.pathname === "/login"
-                      ? "border-b-2 border-gold-400"
-                      : ""
-                  }`}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   Login
                 </Link>
-                {/* <Link
+                <Link
                   to="/register"
-                  className={`text-black text-sm sm:text-base lg:text-lg hover:text-gold-300 py-2 sm:py-0 hover:scale-105 transition-all duration-200 ${
-                    location.pathname === "/register"
-                      ? "border-b-2 border-gold-400"
-                      : ""
-                  }`}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   Register
-                </Link> */}
+                </Link>
               </>
             )}
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
